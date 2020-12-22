@@ -6,43 +6,74 @@ Category: common, config
 Website: https://github.com/toml-lang/toml
 */
 
+import * as regex from '../lib/regex.js';
+
 export default function(hljs) {
-  var NUMBERS = {
+  const NUMBERS = {
     className: 'number',
     relevance: 0,
     variants: [
-      { begin: /([\+\-]+)?[\d]+_[\d_]+/ },
-      { begin: hljs.NUMBER_RE }
+      {
+        begin: /([+-]+)?[\d]+_[\d_]+/
+      },
+      {
+        begin: hljs.NUMBER_RE
+      }
     ]
   };
-  var COMMENTS = hljs.COMMENT();
+  const COMMENTS = hljs.COMMENT();
   COMMENTS.variants = [
-    {begin: /;/, end: /$/},
-    {begin: /#/, end: /$/},
+    {
+      begin: /;/,
+      end: /$/
+    },
+    {
+      begin: /#/,
+      end: /$/
+    }
   ];
-  var VARIABLES = {
+  const VARIABLES = {
     className: 'variable',
     variants: [
-      { begin: /\$[\w\d"][\w\d_]*/ },
-      { begin: /\$\{(.*?)}/ }
+      {
+        begin: /\$[\w\d"][\w\d_]*/
+      },
+      {
+        begin: /\$\{(.*?)\}/
+      }
     ]
   };
-  var LITERALS = {
+  const LITERALS = {
     className: 'literal',
     begin: /\bon|off|true|false|yes|no\b/
   };
-  var STRINGS = {
+  const STRINGS = {
     className: "string",
     contains: [hljs.BACKSLASH_ESCAPE],
     variants: [
-      { begin: "'''", end: "'''", relevance: 10 },
-      { begin: '"""', end: '"""', relevance: 10 },
-      { begin: '"', end: '"' },
-      { begin: "'", end: "'" }
+      {
+        begin: "'''",
+        end: "'''",
+        relevance: 10
+      },
+      {
+        begin: '"""',
+        end: '"""',
+        relevance: 10
+      },
+      {
+        begin: '"',
+        end: '"'
+      },
+      {
+        begin: "'",
+        end: "'"
+      }
     ]
   };
-  var ARRAY = {
-    begin: /\[/, end: /\]/,
+  const ARRAY = {
+    begin: /\[/,
+    end: /\]/,
     contains: [
       COMMENTS,
       LITERALS,
@@ -51,8 +82,19 @@ export default function(hljs) {
       NUMBERS,
       'self'
     ],
-    relevance:0
+    relevance: 0
   };
+
+  const BARE_KEY = /[A-Za-z0-9_-]+/;
+  const QUOTED_KEY_DOUBLE_QUOTE = /"(\\"|[^"])*"/;
+  const QUOTED_KEY_SINGLE_QUOTE = /'[^']*'/;
+  const ANY_KEY = regex.either(
+    BARE_KEY, QUOTED_KEY_DOUBLE_QUOTE, QUOTED_KEY_SINGLE_QUOTE
+  );
+  const DOTTED_KEY = regex.concat(
+    ANY_KEY, '(\\s*\\.\\s*', ANY_KEY, ')*',
+    regex.lookahead(/\s*=\s*[^#\s]/)
+  );
 
   return {
     name: 'TOML, also INI',
@@ -63,10 +105,11 @@ export default function(hljs) {
       COMMENTS,
       {
         className: 'section',
-        begin: /\[+/, end: /\]+/
+        begin: /\[+/,
+        end: /\]+/
       },
       {
-        begin: /^[a-z0-9\[\]_\.-]+(?=\s*=\s*)/,
+        begin: DOTTED_KEY,
         className: 'attr',
         starts: {
           end: /$/,

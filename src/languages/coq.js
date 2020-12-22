@@ -5,6 +5,7 @@ Category: functional
 Website: https://coq.inria.fr
 */
 
+/** @type LanguageFn */
 export default function(hljs) {
   return {
     name: 'Coq',
@@ -68,7 +69,9 @@ export default function(hljs) {
         begin: '\\|\\s*',
         end: '\\w+'
       },
-      {begin: /[-=]>/} // relevance booster
+      { // relevance booster
+        begin: /[-=]>/
+      }
     ]
   };
 }

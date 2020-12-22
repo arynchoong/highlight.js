@@ -4,10 +4,11 @@ Author: Evgeny Stepanischev <imbolk@gmail.com>
 Website: https://esolangs.org/wiki/Brainfuck
 */
 
-export default function(hljs){
-  var LITERAL = {
+/** @type LanguageFn */
+export default function(hljs) {
+  const LITERAL = {
     className: 'literal',
-    begin: '[\\+\\-]',
+    begin: /[+-]/,
     relevance: 0
   };
   return {
@@ -34,7 +35,7 @@ export default function(hljs){
       },
       {
         // this mode works as the only relevance counter
-        begin: /(?:\+\+|\-\-)/,
+        begin: /(?:\+\+|--)/,
         contains: [LITERAL]
       },
       LITERAL

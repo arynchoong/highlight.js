@@ -7,24 +7,26 @@ Category: config
 */
 
 export default function(hljs) {
-  var MACRO = {
+  const MACRO = {
     className: 'variable',
     begin: /\$[\w\d#@][\w\d_]*/
   };
-  var TABLE = {
+  const TABLE = {
     className: 'variable',
-    begin: /<(?!\/)/, end: />/
+    begin: /<(?!\/)/,
+    end: />/
   };
-  var QUOTE_STRING = {
+  const QUOTE_STRING = {
     className: 'string',
-    begin: /"/, end: /"/
+    begin: /"/,
+    end: /"/
   };
 
   return {
     name: 'Packet Filter config',
-    aliases: ['pf.conf'],
-    lexemes: /[a-z0-9_<>-]+/,
+    aliases: [ 'pf.conf' ],
     keywords: {
+      $pattern: /[a-z0-9_<>-]+/,
       built_in: /* block match pass are "actions" in pf.conf(5), the rest are
                  * lexically similar top-level commands.
                  */

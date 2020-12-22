@@ -5,7 +5,7 @@ Highlight.js exports a few functions as methods of the ``hljs`` object.
 
 
 ``highlight(languageName, code, ignore_illegals, continuation)``
----------------------------------------------------------
+----------------------------------------------------------------
 
 Core highlighting function.
 Accepts a language name, or an alias, and a string with the code to highlight.
@@ -32,7 +32,7 @@ Returns an object with the following properties:
 
 
 ``highlightAuto(code, languageSubset)``
-----------------------------------------
+---------------------------------------
 
 Highlighting with language detection.
 Accepts a string with the code to highlight and an optional array of language names and aliases restricting detection to only those languages. The subset can also be set with ``configure``, but the local parameter overrides the option if set.
@@ -45,8 +45,10 @@ Returns an object with the following properties:
 * ``second_best``: object with the same structure for second-best heuristically detected language (may be absent)
 
 
-``fixMarkup(value)``
---------------------
+``fixMarkup(value)`` (deprecated as of 10.3)
+--------------------------------------------
+
+**fixMarkup is deprecated and will be removed entirely in v11.**
 
 Post-processing of the highlighted markup. Currently consists of replacing indentation TAB characters and using ``<br>`` tags instead of new-line characters. Options are set globally with ``configure``.
 
@@ -59,7 +61,7 @@ Accepts a string with the highlighted markup.
 Applies highlighting to a DOM node containing code.
 
 This function is the one to use to apply highlighting dynamically after page load
-or within initialization code of third-party Javascript frameworks.
+or within initialization code of third-party JavaScript frameworks.
 
 The function uses language detection by default but you can specify the language
 in the ``class`` attribute of the DOM node. See the :doc:`class reference
@@ -76,7 +78,7 @@ Configures global options:
 * ``classPrefix``: a string prefix added before class names in the generated markup, used for backwards compatibility with stylesheets.
 * ``languages``: an array of language names and aliases restricting auto detection to only these languages.
 * ``languageDetectRe``: a regex to configure how CSS class names map to language (allows class names like say `color-as-php` vs the default of `language-php`, etc.)
-* ``noHighlightRe``: a regex to configure which CSS classes are to be skipped completely
+* ``noHighlightRe``: a regex to configure which CSS classes are to be skipped completely.
 
 Accepts an object representing options with the values to updated. Other options don't change
 ::
@@ -85,15 +87,14 @@ Accepts an object representing options with the values to updated. Other options
     tabReplace: '    ', // 4 spaces
     classPrefix: ''     // don't append class prefix
                         // … other options aren't changed
-  })
+  });
   hljs.initHighlighting();
 
 
 ``initHighlighting()``
 ----------------------
 
-Applies highlighting to all ``<pre><code>..</code></pre>`` blocks on a page.
-
+Applies highlighting to all ``<pre><code>...</code></pre>`` blocks on a page.
 
 
 ``initHighlightingOnLoad()``
@@ -102,22 +103,30 @@ Applies highlighting to all ``<pre><code>..</code></pre>`` blocks on a page.
 Attaches highlighting to the page load event.
 
 
-``registerLanguage(name, language)``
+``registerLanguage(languageName, languageDefinition)``
 ------------------------------------
 
 Adds new language to the library under the specified name. Used mostly internally.
 
-* ``name``: a string with the name of the language being registered
-* ``language``: a function that returns an object which represents the
+* ``languageName``: a string with the name of the language being registered
+* ``languageDefinition``: a function that returns an object which represents the
   language definition. The function is passed the ``hljs`` object to be able
   to use common regular expressions defined within it.
 
 
+``registerAliases(alias|aliases, {languageName})``
+--------------------------------------------------
+
+Adds new language alias or aliases to the library for the specified language name defined under ``languageName`` key.
+
+* ``alias|aliases``: a string or array with the name of alias being registered
+* ``languageName``: the language name as specified by ``registerLanguage``.
+
+
 ``listLanguages()``
-----------------------------
+-------------------
 
 Returns the languages names list.
-
 
 
 .. _getLanguage:
@@ -131,8 +140,13 @@ Looks up a language by name or alias.
 Returns the language object if found, ``undefined`` otherwise.
 
 
-``requireLanguage(name)``
----------------------
+``requireLanguage(name)`` (deprecated as of 10.4)
+-------------------------------------------------
+
+**This has been deprecated and will be removed in a future release.**  If you
+need this type of functionality use ``getLanguage`` with your own error
+handling.  It is highly recommended that all inter-dependencies between grammars
+be handled at built-time, not run-time.  This is what the core library now does.
 
 Looks up a language by name or alias.
 
@@ -150,5 +164,5 @@ Enables *debug/development* mode.  **This mode purposely makes Highlight.js more
 
 For example, if a new version suddenly had a serious bug (or breaking change) that affected only a single language:
 
-* **In Safe Mode**: All other languages would continue to highlight just fine.  The broken language would appear as a code block, but without any highlighting (as if it were plaintext).
+* **In Safe Mode**: All other languages would continue to highlight just fine. The broken language would appear as a code block, but without any highlighting (as if it were plaintext).
 * **In Debug Mode**: All highlighting would stop when an error was encountered and a JavaScript error would be thrown.

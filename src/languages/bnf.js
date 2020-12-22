@@ -4,14 +4,16 @@ Website: https://en.wikipedia.org/wiki/Backus–Naur_form
 Author: Oleg Efimov <efimovov@gmail.com>
 */
 
-export default function(hljs){
+/** @type LanguageFn */
+export default function(hljs) {
   return {
     name: 'Backus–Naur Form',
     contains: [
       // Attribute
       {
         className: 'attribute',
-        begin: /</, end: />/
+        begin: /</,
+        end: />/
       },
       // Specific
       {
@@ -19,7 +21,8 @@ export default function(hljs){
         end: /$/,
         contains: [
           {
-            begin: /</, end: />/
+            begin: /</,
+            end: />/
           },
           // Common
           hljs.C_LINE_COMMENT_MODE,

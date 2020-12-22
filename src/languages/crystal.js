@@ -4,13 +4,15 @@ Author: TSUYUSATO Kitsune <make.just.on@gmail.com>
 Website: https://crystal-lang.org
 */
 
+/** @type LanguageFn */
 export default function(hljs) {
-  var INT_SUFFIX = '(_*[ui](8|16|32|64|128))?';
-  var FLOAT_SUFFIX = '(_*f(32|64))?';
+  var INT_SUFFIX = '(_?[ui](8|16|32|64|128))?';
+  var FLOAT_SUFFIX = '(_?f(32|64))?';
   var CRYSTAL_IDENT_RE = '[a-zA-Z_]\\w*[!?=]?';
-  var CRYSTAL_METHOD_RE = '[a-zA-Z_]\\w*[!?=]?|[-+~]\\@|<<|>>|[=!]~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~|]|//|//=|&[-+*]=?|&\\*\\*|\\[\\][=?]?';
-  var CRYSTAL_PATH_RE = '[A-Za-z_]\\w*(::\\w+)*(\\?|\\!)?';
+  var CRYSTAL_METHOD_RE = '[a-zA-Z_]\\w*[!?=]?|[-+~]@|<<|>>|[=!]~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~|]|//|//=|&[-+*]=?|&\\*\\*|\\[\\][=?]?';
+  var CRYSTAL_PATH_RE = '[A-Za-z_]\\w*(::\\w+)*(\\?|!)?';
   var CRYSTAL_KEYWORDS = {
+    $pattern: CRYSTAL_IDENT_RE,
     keyword:
       'abstract alias annotation as as? asm begin break case class def do else elsif end ensure enum extend for fun if ' +
       'include instance_sizeof is_a? lib macro module next nil? of out pointerof private protected rescue responds_to? ' +
@@ -20,7 +22,7 @@ export default function(hljs) {
   };
   var SUBST = {
     className: 'subst',
-    begin: '#{', end: '}',
+    begin: /#\{/, end: /\}/,
     keywords: CRYSTAL_KEYWORDS
   };
   var EXPANSION = {
@@ -47,7 +49,7 @@ export default function(hljs) {
       {begin: /`/, end: /`/},
       {begin: '%[Qwi]?\\(', end: '\\)', contains: recursiveParen('\\(', '\\)')},
       {begin: '%[Qwi]?\\[', end: '\\]', contains: recursiveParen('\\[', '\\]')},
-      {begin: '%[Qwi]?{', end: '}', contains: recursiveParen('{', '}')},
+      {begin: '%[Qwi]?\\{', end: /\}/, contains: recursiveParen(/\{/, /\}/)},
       {begin: '%[Qwi]?<', end: '>', contains: recursiveParen('<', '>')},
       {begin: '%[Qwi]?\\|', end: '\\|'},
       {begin: /<<-\w+$/, end: /^\s*\w+$/},
@@ -59,7 +61,7 @@ export default function(hljs) {
     variants: [
       {begin: '%q\\(', end: '\\)', contains: recursiveParen('\\(', '\\)')},
       {begin: '%q\\[', end: '\\]', contains: recursiveParen('\\[', '\\]')},
-      {begin: '%q{', end: '}', contains: recursiveParen('{', '}')},
+      {begin: '%q\\{', end: /\}/, contains: recursiveParen(/\{/, /\}/)},
       {begin: '%q<', end: '>', contains: recursiveParen('<', '>')},
       {begin: '%q\\|', end: '\\|'},
       {begin: /<<-'\w+'$/, end: /^\s*\w+$/},
@@ -67,7 +69,7 @@ export default function(hljs) {
     relevance: 0,
   };
   var REGEXP = {
-    begin: '(?!%})(' + hljs.RE_STARTERS_RE + '|\\n|\\b(case|if|select|unless|until|when|while)\\b)\\s*',
+    begin: '(?!%\\})(' + hljs.RE_STARTERS_RE + '|\\n|\\b(case|if|select|unless|until|when|while)\\b)\\s*',
     keywords: 'case if select unless until when while',
     contains: [
       {
@@ -87,7 +89,7 @@ export default function(hljs) {
     variants: [
       {begin: '%r\\(', end: '\\)', contains: recursiveParen('\\(', '\\)')},
       {begin: '%r\\[', end: '\\]', contains: recursiveParen('\\[', '\\]')},
-      {begin: '%r{', end: '}', contains: recursiveParen('{', '}')},
+      {begin: '%r\\{', end: /\}/, contains: recursiveParen(/\{/, /\}/)},
       {begin: '%r<', end: '>', contains: recursiveParen('<', '>')},
       {begin: '%r\\|', end: '\\|'},
     ],
@@ -156,11 +158,11 @@ export default function(hljs) {
           endsParent: true
         })
       ],
-      relevance: 5
+      relevance: 2
     },
     {
       className: 'symbol',
-      begin: hljs.UNDERSCORE_IDENT_RE + '(\\!|\\?)?:',
+      begin: hljs.UNDERSCORE_IDENT_RE + '(!|\\?)?:',
       relevance: 0
     },
     {
@@ -175,7 +177,7 @@ export default function(hljs) {
         { begin: '\\b0b([01_]+)' + INT_SUFFIX },
         { begin: '\\b0o([0-7_]+)' + INT_SUFFIX },
         { begin: '\\b0x([A-Fa-f0-9_]+)' + INT_SUFFIX },
-        { begin: '\\b([1-9][0-9_]*[0-9]|[0-9])(\\.[0-9][0-9_]*)?([eE]_*[-+]?[0-9_]*)?' + FLOAT_SUFFIX + '(?!_)' },
+        { begin: '\\b([1-9][0-9_]*[0-9]|[0-9])(\\.[0-9][0-9_]*)?([eE]_?[-+]?[0-9_]*)?' + FLOAT_SUFFIX + '(?!_)' },
         { begin: '\\b([1-9][0-9_]*|0)' + INT_SUFFIX }
       ],
       relevance: 0
@@ -187,7 +189,6 @@ export default function(hljs) {
   return {
     name: 'Crystal',
     aliases: ['cr'],
-    lexemes: CRYSTAL_IDENT_RE,
     keywords: CRYSTAL_KEYWORDS,
     contains: CRYSTAL_DEFAULT_CONTAINS
   };
